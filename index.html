@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>lucian lonsdale</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #000;
+    color: #999;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 300;
+    font-size: 13px;
+    padding: 48px 24px 100px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: #fff; color: #000; }
+
+  .site { max-width: 560px; margin: 0 auto; }
+
+  .title {
+    color: #fff;
+    font-weight: 400;
+    font-size: 13px;
+    margin-bottom: 1px;
+  }
+
+  .sub {
+    color: #444;
+    margin-bottom: 24px;
+    font-size: 13px;
+  }
+
+  .branch { color: #333; }
+
+  .section { margin-bottom: 18px; }
+
+  .root-line { line-height: 1.3; }
+
+  .root { color: #ccc; cursor: pointer; }
+  .root:hover { color: #fff; }
+
+  .leaves { margin-top: 6px; }
+
+  .leaf {
+    display: block;
+    line-height: 1.2;
+    overflow: hidden;
+    max-height: 1.2em;
+    opacity: 1;
+    transition: max-height 0.2s ease, opacity 0.15s ease;
+    color: #555;
+  }
+
+  .leaf.hide { max-height: 0; opacity: 0; }
+
+  /* ── Panels ── */
+  .panel {
+    display: none;
+    background: #050505;
+    border-left: 1px solid #1a1a1a;
+    margin: 10px 0 0 0;
+    padding: 20px 24px;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: #888;
+  }
+
+  .panel.open { display: block; }
+
+  .panel h4 {
+    font-size: 11px;
+    font-weight: 400;
+    color: #444;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin: 16px 0 8px 0;
+  }
+
+  .panel h4:first-child { margin-top: 0; }
+
+  .panel p {
+    margin-bottom: 8px;
+    color: #777;
+  }
+
+  .panel .row { margin-bottom: 3px; }
+  .panel .lbl { color: #444; }
+  .panel .val { color: #aaa; }
+
+  .panel .sep {
+    height: 1px;
+    background: #111;
+    margin: 12px 0;
+  }
+
+  .panel a {
+    color: #666;
+    text-decoration: none;
+    border-bottom: 1px solid #1a1a1a;
+  }
+
+  .panel a:hover {
+    color: #fff;
+    border-color: #fff;
+  }
+
+  .tag {
+    display: inline-block;
+    border: 1px solid #1a1a1a;
+    padding: 1px 8px;
+    margin: 2px 3px 2px 0;
+    font-size: 11px;
+    color: #555;
+  }
+
+  .tag:hover { border-color: #444; color: #999; }
+
+  @media (max-width: 520px) {
+    body { padding: 36px 18px 80px; }
+    .panel { padding: 16px 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="site">
+
+<div class="title">lucian lonsdale</div>
+<div class="sub">accounting - construction - software</div>
+
+<!-- RESUME -->
+<div class="section">
+  <div class="root-line"><span class="branch">|——</span><span class="root" onclick="t('r')">resume</span></div>
+  <div class="leaves" id="r-leaves">
+    <div class="leaf"><span class="branch">|  |——</span>education</div>
+    <div class="leaf"><span class="branch">|  |——</span>experience</div>
+    <div class="leaf"><span class="branch">|  |——</span>skills</div>
+  </div>
+  <div class="panel" id="r">
+    <h4>Education</h4>
+    <div class="row"><span class="lbl">school </span><span class="val">Baylor University</span></div>
+    <div class="row"><span class="lbl">major  </span><span class="val">Accounting &amp; Finance</span></div>
+    <div class="row"><span class="lbl">grad   </span><span class="val">Spring 2027</span></div>
+    <div class="row"><span class="lbl">gpa    </span><span class="val">3.75</span></div>
+    <div class="row"><span class="lbl">track  </span><span class="val">CPA Eligible</span></div>
+    <div class="sep"></div>
+    <h4>Experience</h4>
+    <div class="row"><span class="val">Vaughn Construction Co.</span> <span class="lbl">— Waco, TX</span></div>
+    <div class="row"><span class="lbl">Business Systems &amp; Operations</span></div>
+    <p>Built cost estimation models, PM internship programs, SOPs, and Notion-based operational systems for a custom homebuilder.</p>
+    <div class="row"><span class="lbl">note: </span><span class="val">Incoming BDO Audit Internship Spring 2027</span></div>
+    <div class="sep"></div>
+    <h4>Skills</h4>
+    <div>
+      <span class="tag">Excel</span><span class="tag">Alteryx</span><span class="tag">Power BI</span><span class="tag">Tableau</span><span class="tag">Notion</span><span class="tag">Python</span><span class="tag">Financial Modeling</span><span class="tag">Options</span><span class="tag">Technical Analysis</span><span class="tag">SOPs &amp; Process Design</span>
+    </div>
+  </div>
+</div>
+
+<!-- EXPERIMENTS -->
+<div class="section">
+  <div class="root-line"><span class="branch">|——</span><span class="root" onclick="t('e')">experiments</span></div>
+  <div class="leaves" id="e-leaves">
+    <div class="leaf"><span class="branch">|  |——</span>monte-carlo-sim</div>
+    <div class="leaf"><span class="branch">|  |——</span>cost-estimation-model</div>
+    <div class="leaf"><span class="branch">|  |——</span>weekly-operating-system</div>
+  </div>
+  <div class="panel" id="e">
+    <h4>Monte Carlo Portfolio Simulator</h4>
+    <p>Excel-based simulation modeling weekly covered call premium income across SPY/MAGS positions for a hypothetical $1.5M client portfolio. Probabilistic outcome mapping.</p>
+    <div class="sep"></div>
+    <h4>Vaughn Cost Estimation Tool</h4>
+    <p>Regression model built on 20 historical builds from BuilderTrend. Target R² > 0.85. Designed to replace gut-feel pricing with data-backed estimates.</p>
+    <div class="sep"></div>
+    <h4>Weekly Operating System</h4>
+    <p>Personal productivity framework integrating trading guardrails, academic planning, and biometric data from Whoop. Systems thinking applied to daily execution.</p>
+    <div class="sep"></div>
+    <h4>Thesis</h4>
+    <p>Most problems are systems problems. The highest-leverage work is building the process, not doing the process.</p>
+  </div>
+</div>
+
+<!-- PROTOCOLS -->
+<div class="section">
+  <div class="root-line"><span class="branch">|——</span><span class="root" onclick="t('p')">protocols</span></div>
+  <div class="leaves" id="p-leaves">
+    <div class="leaf"><span class="branch">|  |——</span>peptides</div>
+    <div class="leaf"><span class="branch">|  |——</span>case-study</div>
+    <div class="leaf"><span class="branch">|  |——</span>areas-of-study</div>
+  </div>
+  <div class="panel" id="p">
+    <h4>Background</h4>
+    <p>Over the past couple of years I developed a deep interest in human biology and pharmacology — not from a clinical angle, but from a systems perspective. Understanding how the body works at a mechanistic level, what the levers are, and how to pull them intentionally.</p>
+    <div class="sep"></div>
+    <h4>Current Protocol</h4>
+    <div>
+      <span class="tag">Retatrutide</span><span class="tag">BPC-157</span><span class="tag">TB-500</span><span class="tag">GHK-Cu</span><span class="tag">Ipamorelin</span><span class="tag">CJC-1295</span><span class="tag">Modafinil</span>
+    </div>
+    <div class="sep"></div>
+    <h4>Why</h4>
+    <div>
+      <span class="tag">Recovery &amp; Tissue Repair</span><span class="tag">Muscle Growth</span><span class="tag">Productivity</span><span class="tag">Endocrine Optimization</span><span class="tag">Sleep Architecture</span><span class="tag">Gut Health</span><span class="tag">Inflammation Control</span><span class="tag">Cognitive Performance</span>
+    </div>
+    <div class="sep"></div>
+    <h4>Case Study</h4>
+    <p>I'm interested in building a comparative case study of CEOs who use "performance optimization" techniques — peptides, nootropics, biohacking protocols — and measuring how their companies have grown relative to peers who haven't. The hypothesis: the edge compounds at the top.</p>
+    <div class="sep"></div>
+    <h4>Areas of Study</h4>
+    <div>
+      <span class="tag">Peptide Therapy</span><span class="tag">Endocrine Systems</span><span class="tag">Sleep Architecture</span><span class="tag">Gut-Brain Axis</span><span class="tag">Inflammation Pathways</span><span class="tag">Nootropics</span>
+    </div>
+    <div class="sep"></div>
+    <p>Questions? <a href="mailto:luc_lonsdale1@baylor.edu">luc_lonsdale1@baylor.edu</a></p>
+  </div>
+</div>
+
+<!-- TRADING -->
+<div class="section">
+  <div class="root-line"><span class="branch">|——</span><span class="root" onclick="t('tr')">trading</span></div>
+  <div class="leaves" id="tr-leaves">
+    <div class="leaf"><span class="branch">|  |——</span>strategy</div>
+    <div class="leaf"><span class="branch">|  |——</span>philosophy</div>
+    <div class="leaf"><span class="branch">|  |——</span>focus-areas</div>
+  </div>
+  <div class="panel" id="tr">
+    <h4>Strategy</h4>
+    <div class="row"><span class="lbl">style    </span><span class="val">Covered Calls + Directional Swings</span></div>
+    <div class="row"><span class="lbl">edge     </span><span class="val">Pattern Recognition · Risk/Reward Discipline</span></div>
+    <div class="row"><span class="lbl">platform </span><span class="val">Robinhood</span></div>
+    <div class="sep"></div>
+    <h4>Philosophy</h4>
+    <p>Consistent base hits > home runs. Premium income as a compounding engine. Position sizing is the only real risk management.</p>
+    <div class="sep"></div>
+    <h4>Focus Areas</h4>
+    <div>
+      <span class="tag">Covered Calls</span><span class="tag">Leveraged ETFs</span><span class="tag">Premium Selling</span><span class="tag">Technical Analysis</span><span class="tag">Options Greeks</span>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT -->
+<div class="section">
+  <div class="root-line"><span class="branch">|——</span><span class="root" onclick="t('c')">contact</span></div>
+  <div class="panel" id="c">
+    <h4>Connect</h4>
+    <div class="row"><span class="lbl">linkedin  </span><a href="https://www.linkedin.com/in/luc-lonsdale-741273298" target="_blank"><span class="val">linkedin.com/in/luc-lonsdale</span></a></div>
+    <div class="row"><span class="lbl">email     </span><a href="mailto:luc_lonsdale1@baylor.edu"><span class="val">luc_lonsdale1@baylor.edu</span></a></div>
+    <div class="row"><span class="lbl">location  </span><span class="val">Waco, TX · Phoenix, AZ</span></div>
+    <div class="sep"></div>
+    <p>Open to: VC internships, accounting/finance roles, systems-building conversations.</p>
+  </div>
+</div>
+
+</div>
+<script>
+function t(id){
+  var el=document.getElementById(id);
+  var wasOpen=el.classList.contains('open');
+  var all=document.querySelectorAll('.panel');
+  for(var i=0;i<all.length;i++)all[i].classList.remove('open');
+  var lv=document.querySelectorAll('.leaves');
+  for(var i=0;i<lv.length;i++){
+    var kids=lv[i].children;
+    for(var j=0;j<kids.length;j++)kids[j].classList.remove('hide');
+  }
+  if(!wasOpen){
+    el.classList.add('open');
+    var leaves=document.getElementById(id+'-leaves');
+    if(leaves){
+      var kids=leaves.children;
+      for(var i=0;i<kids.length;i++)kids[i].classList.add('hide');
+    }
+  }
+}
+</script>
+</body>
+</html>
