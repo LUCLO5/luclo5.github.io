@@ -23,28 +23,14 @@
 
   .site { max-width: 560px; margin: 0 auto; }
 
-  .title {
-    color: #fff;
-    font-weight: 400;
-    font-size: 13px;
-    margin-bottom: 1px;
-  }
-
-  .sub {
-    color: #444;
-    margin-bottom: 24px;
-    font-size: 13px;
-  }
+  .title { color: #fff; font-weight: 400; font-size: 13px; margin-bottom: 1px; }
+  .sub { color: #444; margin-bottom: 24px; font-size: 13px; }
 
   .branch { color: #333; }
-
   .section { margin-bottom: 18px; }
-
   .root-line { line-height: 1.3; }
-
   .root { color: #ccc; cursor: pointer; }
   .root:hover { color: #fff; }
-
   .leaves { margin-top: 6px; }
 
   .leaf {
@@ -56,10 +42,8 @@
     transition: max-height 0.2s ease, opacity 0.15s ease;
     color: #555;
   }
-
   .leaf.hide { max-height: 0; opacity: 0; }
 
-  /* ── Panels ── */
   .panel {
     display: none;
     background: #050505;
@@ -70,7 +54,6 @@
     line-height: 1.7;
     color: #888;
   }
-
   .panel.open { display: block; }
 
   .panel h4 {
@@ -81,34 +64,15 @@
     text-transform: uppercase;
     margin: 16px 0 8px 0;
   }
-
   .panel h4:first-child { margin-top: 0; }
-
-  .panel p {
-    margin-bottom: 8px;
-    color: #777;
-  }
-
+  .panel p { margin-bottom: 8px; color: #777; }
   .panel .row { margin-bottom: 3px; }
   .panel .lbl { color: #444; }
   .panel .val { color: #aaa; }
+  .panel .sep { height: 1px; background: #111; margin: 12px 0; }
 
-  .panel .sep {
-    height: 1px;
-    background: #111;
-    margin: 12px 0;
-  }
-
-  .panel a {
-    color: #666;
-    text-decoration: none;
-    border-bottom: 1px solid #1a1a1a;
-  }
-
-  .panel a:hover {
-    color: #fff;
-    border-color: #fff;
-  }
+  .panel a { color: #666; text-decoration: none; border-bottom: 1px solid #1a1a1a; }
+  .panel a:hover { color: #fff; border-color: #fff; }
 
   .tag {
     display: inline-block;
@@ -118,8 +82,23 @@
     font-size: 11px;
     color: #555;
   }
-
   .tag:hover { border-color: #444; color: #999; }
+
+
+  /* cursor */
+  @media (hover: hover) and (pointer: fine) {
+    body.has-cursor, body.has-cursor .root, body.has-cursor a { cursor: none; }
+    .cursor {
+      position: fixed; left: 0; top: 0; z-index: 9999;
+      width: 10px; height: 10px; margin: -5px 0 0 -5px;
+      border-radius: 50%; background: #fff;
+      pointer-events: none; opacity: 0;
+      transition: width .2s ease, height .2s ease, margin .2s ease, opacity .2s ease;
+    }
+    .cursor.on { opacity: 1; }
+    .cursor.big { width: 28px; height: 28px; margin: -14px 0 0 -14px; background: transparent; border: 1px solid #fff; }
+  }
+  @media (hover: none), (pointer: coarse) { .cursor { display: none; } }
 
   @media (max-width: 520px) {
     body { padding: 36px 18px 80px; }
@@ -128,10 +107,11 @@
 </style>
 </head>
 <body>
+<div class="cursor" id="cursor" aria-hidden="true"></div>
 <div class="site">
 
 <div class="title">lucian lonsdale</div>
-<div class="sub">accounting - construction - software</div>
+<div class="sub">accounting - construction - markets - writing</div>
 
 <!-- RESUME -->
 <div class="section">
@@ -146,76 +126,22 @@
     <div class="row"><span class="lbl">school </span><span class="val">Baylor University</span></div>
     <div class="row"><span class="lbl">major  </span><span class="val">Accounting &amp; Finance</span></div>
     <div class="row"><span class="lbl">grad   </span><span class="val">Spring 2027</span></div>
-    <div class="row"><span class="lbl">gpa    </span><span class="val">3.75</span></div>
-    <div class="row"><span class="lbl">track  </span><span class="val">CPA Eligible</span></div>
+    <div class="row"><span class="lbl">track  </span><span class="val">CPA Eligibility and MAcc</span></div>
     <div class="sep"></div>
     <h4>Experience</h4>
     <div class="row"><span class="val">Vaughn Construction Co.</span> <span class="lbl">— Waco, TX</span></div>
     <div class="row"><span class="lbl">Business Systems &amp; Operations</span></div>
-    <p>Built cost estimation models, PM internship programs, SOPs, and Notion-based operational systems for a custom homebuilder.</p>
+    <p>Built cost estimation models, PM internship programs, SOPs, and Notion-based operational systems for a custom homebuilder. Previously supervised warranty work and coordinated subcontractors against job costs in BuilderTrend.</p>
+    <div class="row"><span class="val">Volunteer Income Tax Assistance</span> <span class="lbl">— IRS VITA</span></div>
+    <p>Prepared and reviewed 20+ individual returns, generating $30,000+ in client tax savings.</p>
     <div class="row"><span class="lbl">note: </span><span class="val">Incoming BDO Audit Internship Spring 2027</span></div>
     <div class="sep"></div>
     <h4>Skills</h4>
     <div>
       <span class="tag">Excel</span><span class="tag">Alteryx</span><span class="tag">Power BI</span><span class="tag">Tableau</span><span class="tag">Notion</span><span class="tag">Python</span><span class="tag">Financial Modeling</span><span class="tag">Options</span><span class="tag">Technical Analysis</span><span class="tag">SOPs &amp; Process Design</span>
     </div>
-  </div>
-</div>
-
-<!-- EXPERIMENTS -->
-<div class="section">
-  <div class="root-line"><span class="branch">|——</span><span class="root" onclick="t('e')">experiments</span></div>
-  <div class="leaves" id="e-leaves">
-    <div class="leaf"><span class="branch">|  |——</span>monte-carlo-sim</div>
-    <div class="leaf"><span class="branch">|  |——</span>cost-estimation-model</div>
-    <div class="leaf"><span class="branch">|  |——</span>weekly-operating-system</div>
-  </div>
-  <div class="panel" id="e">
-    <h4>Monte Carlo Portfolio Simulator</h4>
-    <p>Excel-based simulation modeling weekly covered call premium income across SPY/MAGS positions for a hypothetical $1.5M client portfolio. Probabilistic outcome mapping.</p>
     <div class="sep"></div>
-    <h4>Vaughn Cost Estimation Tool</h4>
-    <p>Regression model built on 20 historical builds from BuilderTrend. Target R² > 0.85. Designed to replace gut-feel pricing with data-backed estimates.</p>
-    <div class="sep"></div>
-    <h4>Weekly Operating System</h4>
-    <p>Personal productivity framework integrating trading guardrails, academic planning, and biometric data from Whoop. Systems thinking applied to daily execution.</p>
-    <div class="sep"></div>
-    <h4>Thesis</h4>
-    <p>Most problems are systems problems. The highest-leverage work is building the process, not doing the process.</p>
-  </div>
-</div>
-
-<!-- PROTOCOLS -->
-<div class="section">
-  <div class="root-line"><span class="branch">|——</span><span class="root" onclick="t('p')">protocols</span></div>
-  <div class="leaves" id="p-leaves">
-    <div class="leaf"><span class="branch">|  |——</span>peptides</div>
-    <div class="leaf"><span class="branch">|  |——</span>case-study</div>
-    <div class="leaf"><span class="branch">|  |——</span>areas-of-study</div>
-  </div>
-  <div class="panel" id="p">
-    <h4>Background</h4>
-    <p>Over the past couple of years I developed a deep interest in human biology and pharmacology — not from a clinical angle, but from a systems perspective. Understanding how the body works at a mechanistic level, what the levers are, and how to pull them intentionally.</p>
-    <div class="sep"></div>
-    <h4>Current Protocol</h4>
-    <div>
-      <span class="tag">Retatrutide</span><span class="tag">BPC-157</span><span class="tag">TB-500</span><span class="tag">GHK-Cu</span><span class="tag">Ipamorelin</span><span class="tag">CJC-1295</span><span class="tag">Modafinil</span>
-    </div>
-    <div class="sep"></div>
-    <h4>Why</h4>
-    <div>
-      <span class="tag">Recovery &amp; Tissue Repair</span><span class="tag">Muscle Growth</span><span class="tag">Productivity</span><span class="tag">Endocrine Optimization</span><span class="tag">Sleep Architecture</span><span class="tag">Gut Health</span><span class="tag">Inflammation Control</span><span class="tag">Cognitive Performance</span>
-    </div>
-    <div class="sep"></div>
-    <h4>Case Study</h4>
-    <p>I'm interested in building a comparative case study of CEOs who use "performance optimization" techniques — peptides, nootropics, biohacking protocols — and measuring how their companies have grown relative to peers who haven't. The hypothesis: the edge compounds at the top.</p>
-    <div class="sep"></div>
-    <h4>Areas of Study</h4>
-    <div>
-      <span class="tag">Peptide Therapy</span><span class="tag">Endocrine Systems</span><span class="tag">Sleep Architecture</span><span class="tag">Gut-Brain Axis</span><span class="tag">Inflammation Pathways</span><span class="tag">Nootropics</span>
-    </div>
-    <div class="sep"></div>
-    <p>Questions? <a href="mailto:luc_lonsdale1@baylor.edu">luc_lonsdale1@baylor.edu</a></p>
+    <div class="row"><span class="lbl">pdf    </span><a href="Lucian_Lonsdale_Resume.pdf" target="_blank"><span class="val">full resume</span></a></div>
   </div>
 </div>
 
@@ -223,23 +149,80 @@
 <div class="section">
   <div class="root-line"><span class="branch">|——</span><span class="root" onclick="t('tr')">trading</span></div>
   <div class="leaves" id="tr-leaves">
+    <div class="leaf"><span class="branch">|  |——</span>status</div>
     <div class="leaf"><span class="branch">|  |——</span>strategy</div>
     <div class="leaf"><span class="branch">|  |——</span>philosophy</div>
+    <div class="leaf"><span class="branch">|  |——</span>record</div>
     <div class="leaf"><span class="branch">|  |——</span>focus-areas</div>
   </div>
   <div class="panel" id="tr">
+    <h4>Status</h4>
+    <div class="row"><span class="lbl">current  </span><span class="val">On hiatus</span></div>
+    <div class="row"><span class="lbl">outlook  </span><span class="val">Build capital over the next couple of years and grow trading into a solid source of income</span></div>
+    <div class="sep"></div>
     <h4>Strategy</h4>
-    <div class="row"><span class="lbl">style    </span><span class="val">Covered Calls + Directional Swings</span></div>
-    <div class="row"><span class="lbl">edge     </span><span class="val">Pattern Recognition · Risk/Reward Discipline</span></div>
-    <div class="row"><span class="lbl">platform </span><span class="val">Robinhood</span></div>
+    <div class="row"><span class="lbl">style    </span><span class="val">Covered Calls + Directional Swings + Leverage</span></div>
+    <div class="row"><span class="lbl">edge     </span><span class="val">Pattern Recognition · Media Insight</span></div>
+    <div class="row"><span class="lbl">platform </span><span class="val">Robinhood · Liquid</span></div>
     <div class="sep"></div>
     <h4>Philosophy</h4>
-    <p>Consistent base hits > home runs. Premium income as a compounding engine. Position sizing is the only real risk management.</p>
+    <p>I hold trades for a few days to a few weeks. I don't day trade. I'll take a position when the chart looks right and the news around the stock supports it, sometimes with leverage.</p>
+    <p>For options I lean toward contracts with a lot of vega, so if volatility picks up I make money on that even if the stock hasn't moved much yet. I also sell premium against what I'm holding. That money gets put back into the next trade, and over time that's what grows the account.</p>
+    <div class="sep"></div>
+    <h4>Record</h4>
+    <p>This approach gave me about two and a half years of 100% portfolio growth. Then I ran more leverage than I should have and the account was liquidated. The ideas were good; the risk management wasn't. That's the reason for the hiatus. Before I get back in I'm learning risk management properly: how much to size, how much leverage, and where I'm out, decided before the trade and not during it.</p>
     <div class="sep"></div>
     <h4>Focus Areas</h4>
     <div>
-      <span class="tag">Covered Calls</span><span class="tag">Leveraged ETFs</span><span class="tag">Premium Selling</span><span class="tag">Technical Analysis</span><span class="tag">Options Greeks</span>
+      <span class="tag">Swing Trading</span><span class="tag">High-Vega Options</span><span class="tag">Covered Calls</span><span class="tag">Premium Selling</span><span class="tag">Leveraged ETFs</span><span class="tag">Technical Analysis</span><span class="tag">Options Greeks</span><span class="tag">Risk Management</span>
     </div>
+  </div>
+</div>
+
+<!-- RESEARCH -->
+<div class="section">
+  <div class="root-line"><span class="branch">|——</span><span class="root" onclick="t('p')">research</span></div>
+  <div class="leaves" id="p-leaves">
+    <div class="leaf"><span class="branch">|  |——</span>background</div>
+    <div class="leaf"><span class="branch">|  |——</span>pharmacology-and-performance</div>
+    <div class="leaf"><span class="branch">|  |——</span>case-study</div>
+    <div class="leaf"><span class="branch">|  |——</span>areas-of-study</div>
+  </div>
+  <div class="panel" id="p">
+    <h4>Background</h4>
+    <p>Over the past couple of years I developed a deep interest in human biology and pharmacology — not from a clinical angle, but from a systems perspective. Understanding how the body works at a mechanistic level, what the levers are, and how to pull them intentionally.</p>
+    <div class="sep"></div>
+    <h4>Pharmacology and Performance</h4>
+    <p>Most of what people call performance comes down to a few things: how well you sleep, how fast you recover, where your hormones are at, and how much inflammation you're carrying around. Pharmacology is interesting to me because it acts on those directly. Better sleep means a better next day. Faster recovery means you can train more. Being more awake means more useful hours.</p>
+    <p>What I find most interesting is the trade-offs. Something can work and still not be worth it once you count the side effects, the tolerance, and what happens when you stop. I treat it the way I'd treat any system: understand the mechanism first, measure one variable at a time, and be honest about what the data says.</p>
+    <div class="sep"></div>
+    <h4>Case Study</h4>
+    <p>I'm interested in building a comparative case study of CEOs and business owners who leverage modern compounds and research — peptides, nootropics, biohacking protocols — and measuring how their companies have grown relative to peers who haven't. The hypothesis: the edge compounds at the top.</p>
+    <div class="sep"></div>
+    <h4>Why</h4>
+    <p>Take two identical companies. Same product, same market, same headcount. The only difference is that the people running group A sleep better, recover faster, and have more good hours in a day because they use modern medicine and the tools that come with it, and group B doesn't. Over a quarter you probably can't tell them apart. Over five years I think you can, and I want to know by how much.</p>
+    <p>If the gap is real, it raises a few questions. Should a company have someone in house for this the same way it has someone for IT or legal? Could it be offered as a coaching program instead? And what would it actually cost compared to what it returns? Those are the questions the case study is meant to answer.</p>
+    <div class="sep"></div>
+    <h4>Areas of Study</h4>
+    <div>
+      <span class="tag">Peptide Therapy</span><span class="tag">Endocrine Systems</span><span class="tag">Sleep Architecture</span><span class="tag">Gut-Brain Axis</span><span class="tag">Inflammation Pathways</span><span class="tag">Recovery &amp; Tissue Repair</span><span class="tag">Cognitive Performance</span>
+    </div>
+    <div class="sep"></div>
+    <p>Questions? <a href="mailto:luc_lonsdale1@baylor.edu">luc_lonsdale1@baylor.edu</a></p>
+  </div>
+</div>
+
+<!-- WRITING -->
+<div class="section">
+  <div class="root-line"><span class="branch">|——</span><span class="root" onclick="t('w')">writing</span></div>
+  <div class="leaves" id="w-leaves">
+    <div class="leaf"><span class="branch">|  |——</span>substack</div>
+  </div>
+  <div class="panel" id="w">
+    <h4>Substack</h4>
+    <div class="row"><span class="lbl">read  </span><a href="https://lucianlonsdale.substack.com/" target="_blank"><span class="val">lucianlonsdale.substack.com</span></a></div>
+    <div class="sep"></div>
+    <p>Writing is getting lost in the age of AI. Anyone can generate a clean paragraph now, so I'd rather just put down what I'm actually thinking. The Substack is almost a public diary: what I'm working on, what I'm tracking, what I got wrong. Not polished, and that's the point.</p>
   </div>
 </div>
 
@@ -249,10 +232,12 @@
   <div class="panel" id="c">
     <h4>Connect</h4>
     <div class="row"><span class="lbl">linkedin  </span><a href="https://www.linkedin.com/in/luc-lonsdale-741273298" target="_blank"><span class="val">linkedin.com/in/luc-lonsdale</span></a></div>
+    <div class="row"><span class="lbl">github    </span><a href="https://github.com/LUCLO5" target="_blank"><span class="val">github.com/LUCLO5</span></a></div>
+    <div class="row"><span class="lbl">substack  </span><a href="https://lucianlonsdale.substack.com/" target="_blank"><span class="val">lucianlonsdale.substack.com</span></a></div>
     <div class="row"><span class="lbl">email     </span><a href="mailto:luc_lonsdale1@baylor.edu"><span class="val">luc_lonsdale1@baylor.edu</span></a></div>
     <div class="row"><span class="lbl">location  </span><span class="val">Waco, TX · Phoenix, AZ</span></div>
     <div class="sep"></div>
-    <p>Open to: VC internships, accounting/finance roles, systems-building conversations.</p>
+    <p>Happy to talk about accounting, markets, construction, or building systems.</p>
   </div>
 </div>
 
@@ -277,6 +262,18 @@ function t(id){
     }
   }
 }
+
+(function(){
+  if(!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+  var c=document.getElementById('cursor'); if(!c) return;
+  document.body.classList.add('has-cursor');
+  var x=-100,y=-100,cx=x,cy=y;
+  document.addEventListener('mousemove',function(e){x=e.clientX;y=e.clientY;c.classList.add('on');});
+  document.addEventListener('mouseleave',function(){c.classList.remove('on');});
+  document.addEventListener('mouseover',function(e){ if(e.target.closest('a, .root')) c.classList.add('big'); });
+  document.addEventListener('mouseout',function(e){ if(e.target.closest('a, .root')) c.classList.remove('big'); });
+  (function loop(){ cx+=(x-cx)*.3; cy+=(y-cy)*.3; c.style.transform='translate('+cx+'px,'+cy+'px)'; requestAnimationFrame(loop); })();
+})();
 </script>
 </body>
 </html>
