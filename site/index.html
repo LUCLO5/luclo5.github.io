@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lucian Lonsdale</title>
+<meta name="description" content="Lucian Lonsdale. Accounting at Baylor University. Resume, projects, trading, writing and contact.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* Layout idea: one centered column. Name, the live surface (which is the navigation),
+     a sliding section switcher, and a short panel that changes in place. */
+  :root {
+    --paper: #F6F7F9;
+    --ink: #0F1B2D;
+    --body: #2E3A4C;
+    --muted: #6A7586;
+    --rule: #D9DEE6;
+    --accent: #2648B8;
+    --serif: "Times New Roman", Times, "Liberation Serif", serif;
+    --sans: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+    --ease: cubic-bezier(.2, .8, .2, 1);
+    --spring: cubic-bezier(.34, 1.36, .44, 1);
+    color-scheme: light;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body {
+    background: var(--paper); color: var(--body);
+    font-family: var(--sans); font-size: 16px; line-height: 1.6;
+    -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums;
+  }
+  ::selection { background: var(--ink); color: var(--paper); }
+  a { color: inherit; }
+  a:focus-visible, button:focus-visible, canvas:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
+
+  /* Hero */
+  .hero { padding: 76px 0 0; display: grid; gap: 14px; justify-items: start; text-align: left; }
+  h1 {
+    font-family: var(--serif); font-weight: 400; color: var(--ink);
+    font-size: clamp(44px, 6.6vw, 72px); line-height: 1; letter-spacing: -0.01em; text-wrap: balance;
+  }
+  .role { font-family: var(--serif); font-size: clamp(22px, 2.6vw, 28px); line-height: 1.3; color: var(--ink); }
+  .open { font-size: 17px; color: var(--body); }
+  .open a { white-space: nowrap; }
+  .textlink { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; transition: color .2s ease; }
+  .textlink:hover { color: var(--ink); }
+
+  /* Figure */
+  figure.surface { margin: 44px 0 0; }
+  .plot { position: relative; width: 100%; height: 500px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .plot canvas { display: block; width: 100%; height: 100%; touch-action: pan-y; cursor: grab; }
+  .plot canvas.dragging { cursor: grabbing; }
+  .plot canvas.on-pin { cursor: pointer; }
+  figcaption { display: grid; justify-items: center; gap: 6px; padding: 14px 0 0; font-size: 13.5px; color: var(--muted); text-align: center; }
+  figcaption em { font-family: var(--serif); font-style: italic; font-size: 15px; }
+  .readout { display: flex; gap: 22px; color: var(--ink); }
+  .readout i { font-style: normal; display: inline-block; min-width: 3.6em; text-align: left; }
+  .readout b { font-weight: 400; color: var(--muted); margin-right: 6px; }
+
+  /* Points on the surface: visual + keyboard targets; the pointer is hit-tested in script */
+  .pins { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .pin {
+    position: absolute; left: 0; top: 0; width: 22px; height: 22px; margin: -11px 0 0 -11px;
+    display: grid; place-items: center; background: none; border: 0; padding: 0; font: inherit;
+    pointer-events: none; will-change: transform;
+  }
+  .pin i {
+    opacity: var(--o, 0);
+    width: 10px; height: 10px; border-radius: 50%; background: var(--accent);
+    box-shadow: 0 0 0 2.5px var(--paper), 0 0 0 3.5px rgba(38,72,184,.32);
+    transition: transform .35s var(--spring), background .25s ease, opacity .25s ease;
+  }
+  .pin.show i, .pin:focus-visible i, html.touch .pin i { opacity: 1; }
+  .pin span {
+    position: absolute; bottom: calc(100% + 8px); left: 50%;
+    font-family: var(--serif); font-size: 18px; line-height: 1; color: var(--ink);
+    background: rgba(255,255,255,.92); border: 1px solid var(--rule); border-radius: 4px;
+    padding: 7px 11px 6px; white-space: nowrap;
+    box-shadow: 0 6px 18px -10px rgba(15,27,45,.35);
+    opacity: 0; transform: translate(-50%, 6px) scale(.96); transform-origin: 50% 100%;
+    transition: opacity .22s ease, transform .35s var(--spring);
+  }
+  .pin.hot i, .pin:focus-visible i { transform: scale(1.5); }
+  .pin.hot span, .pin:focus-visible span, html.touch .pin[aria-pressed="true"] span { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  .pin[aria-pressed="true"] i { background: var(--ink); box-shadow: 0 0 0 2.5px var(--paper), 0 0 0 3.5px rgba(15,27,45,.35); }
+  .pin:focus-visible { outline: none; }
+  .pin:focus-visible span { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* Section switcher */
+  .switch-wrap { display: flex; justify-content: center; margin: 40px 0 0; }
+  .switch {
+    position: relative; display: inline-flex; padding: 5px; border-radius: 999px;
+    background: #fff; border: 1px solid var(--rule);
+    box-shadow: 0 1px 0 rgba(15,27,45,.03), 0 14px 32px -18px rgba(15,27,45,.28);
+    max-width: 100%; overflow-x: auto; scrollbar-width: none;
+  }
+  .switch::-webkit-scrollbar { display: none; }
+  .switch button {
+    position: relative; z-index: 2; font: 500 15px/1 var(--sans); letter-spacing: .005em;
+    padding: 12px 22px; border: 0; background: none; color: var(--muted); border-radius: 999px;
+    cursor: pointer; white-space: nowrap; transition: color .3s ease;
+  }
+  .switch button:hover { color: var(--ink); }
+  .switch button[aria-selected="true"] { color: var(--paper); }
+  .switch button:focus-visible { outline-offset: -2px; }
+  .thumb, .ghost { position: absolute; top: 5px; bottom: 5px; left: 5px; right: 5px; border-radius: 999px; pointer-events: none; }
+  .thumb {
+    z-index: 1; background: var(--ink);
+    background-image: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0) 60%);
+    box-shadow: 0 6px 14px -6px rgba(15,27,45,.55);
+    transition: left .5s var(--spring), right .5s var(--spring);
+  }
+  .ghost { z-index: 0; background: rgba(15,27,45,.055); opacity: 0; transition: left .3s var(--ease), right .3s var(--ease), opacity .25s ease; }
+  .switch.hovering .ghost { opacity: 1; }
+  .switch { touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+  .switch.scrubbing .thumb { transition: left .12s ease-out, right .12s ease-out; box-shadow: 0 10px 22px -8px rgba(15,27,45,.6); }
+  .switch.scrubbing button { transition: color .12s ease; }
+
+  /* Panel */
+  .stage { max-width: 620px; margin: 0 auto; padding: 36px 4px 8px; transition: height .48s var(--ease); overflow: hidden; }
+  .sec { display: none; text-align: center; }
+  .sec.on { display: grid; gap: 18px; justify-items: center; transition: opacity .28s ease, transform .4s var(--ease), filter .28s ease; }
+  .sec.in { opacity: 0; transform: translateY(8px); filter: blur(4px); }
+  .sec.out { opacity: 0; transform: translateY(-6px); filter: blur(3px); transition-duration: .17s; }
+  .sec p { max-width: 54ch; }
+
+  dl.rows { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); gap: 10px 28px; width: 100%; text-align: left; }
+  dl.rows dt { color: var(--muted); font-size: 15px; text-align: right; }
+  dl.rows dd { color: var(--ink); }
+  dl.rows dd small { color: var(--muted); font-size: 14px; }
+  dl.rows a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--rule); transition: border-color .2s ease; }
+  dl.rows a:hover { border-color: var(--ink); }
+
+  footer { margin-top: 56px; border-top: 1px solid var(--rule); padding: 24px 0 48px; display: flex; justify-content: center; gap: 28px; flex-wrap: wrap; font-size: 13.5px; color: var(--muted); }
+  footer a { color: var(--muted); }
+
+  /* Cursor */
+  .cur-dot, .cur-ring { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 9999; opacity: 0; will-change: transform; }
+  .cur-dot { width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: var(--ink); transition: opacity .2s ease, width .2s ease, height .2s ease, margin .2s ease; }
+  .cur-ring {
+    width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%;
+    border: 1px solid rgba(15,27,45,.35);
+    transition: width .35s var(--spring), height .35s var(--spring), margin .35s var(--spring), border-color .25s ease, background .25s ease, opacity .2s ease;
+  }
+  html.cc.cur-on .cur-dot, html.cc.cur-on .cur-ring { opacity: 1; }
+  html.cc .cur-ring.link { width: 46px; height: 46px; margin: -23px 0 0 -23px; background: rgba(15,27,45,.05); border-color: rgba(15,27,45,.2); }
+  html.cc .cur-ring.plot { width: 22px; height: 22px; margin: -11px 0 0 -11px; }
+  html.cc .cur-ring.snap { width: 30px; height: 30px; margin: -15px 0 0 -15px; border-color: var(--accent); background: rgba(38,72,184,.06); }
+  html.cc .cur-ring.down { width: 16px; height: 16px; margin: -8px 0 0 -8px; }
+  html.cc .cur-dot.hide { width: 0; height: 0; margin: 0; }
+  @media (hover: hover) and (pointer: fine) {
+    html.cc, html.cc * { cursor: none !important; }
+  }
+
+  @media (max-width: 820px) { .plot { height: 400px; } }
+  @media (max-width: 520px) {
+    .wrap { padding: 0 16px; }
+    .hero { padding-top: 52px; }
+    .plot { height: 330px; }
+    .switch-wrap { margin-top: 32px; }
+    .switch { display: flex; width: 100%; padding: 4px; }
+    .switch button { flex: 1 1 0; padding: 12px 0; font-size: 13.5px; min-width: 0; }
+    .thumb, .ghost { top: 4px; bottom: 4px; }
+    dl.rows { grid-template-columns: 1fr; gap: 0; text-align: center; }
+    dl.rows dt { text-align: center; font-size: 14px; }
+    dl.rows dd { margin-bottom: 12px; }
+    .pin span { font-size: 16px; }
+    .readout { gap: 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .thumb, .ghost, .stage, .sec.on, .pin i, .pin span, .cur-ring, .cur-dot { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <h1>Lucian Lonsdale</h1>
+    <p class="role">Accounting @ Baylor</p>
+    <p class="open">Always learning, and open to work. <a class="textlink" href="#contact" data-open="contact">Get in touch</a></p>
+  </div>
+
+  <figure class="surface">
+    <div class="plot" id="plot">
+      <canvas id="surface" tabindex="0" aria-label="Animated 3D implied volatility surface. Drag or use arrow keys to rotate."></canvas>
+      <div class="pins" role="group" aria-label="Sections">
+        <button class="pin" type="button" data-sec="resume"   data-m="0.82" data-t="0.45" aria-label="Resume"><i></i><span>Resume</span></button>
+        <button class="pin" type="button" data-sec="projects" data-m="1.02" data-t="1.35" aria-label="Projects"><i></i><span>Projects</span></button>
+        <button class="pin" type="button" data-sec="trading"  data-m="1.20" data-t="0.60" aria-label="Trading"><i></i><span>Trading</span></button>
+        <button class="pin" type="button" data-sec="writing"  data-m="0.86" data-t="1.85" aria-label="Writing"><i></i><span>Writing</span></button>
+        <button class="pin" type="button" data-sec="contact"  data-m="1.22" data-t="1.80" aria-label="Contact"><i></i><span>Contact</span></button>
+      </div>
+    </div>
+    <figcaption>
+      <span><em>Fig. 1.</em> Implied volatility surface σ(K/S, τ), simulated. <span id="hint">Hover the surface to find each section.</span></span>
+      <span class="readout" aria-live="off">
+        <span><b>K/S</b><i id="ro-m">1.00</i></span>
+        <span><b>τ</b><i id="ro-t">0.50y</i></span>
+        <span><b>σ</b><i id="ro-s">20.0%</i></span>
+      </span>
+    </figcaption>
+  </figure>
+
+  <div class="switch-wrap">
+    <div class="switch" id="switch" role="tablist" aria-label="Sections">
+      <span class="ghost" aria-hidden="true"></span>
+      <span class="thumb" aria-hidden="true"></span>
+      <button type="button" role="tab" data-sec="resume" aria-controls="resume">Resume</button>
+      <button type="button" role="tab" data-sec="projects" aria-controls="projects">Projects</button>
+      <button type="button" role="tab" data-sec="trading" aria-controls="trading">Trading</button>
+      <button type="button" role="tab" data-sec="writing" aria-controls="writing">Writing</button>
+      <button type="button" role="tab" data-sec="contact" aria-controls="contact">Contact</button>
+    </div>
+  </div>
+
+  <div class="stage" id="stage">
+    <section class="sec" id="resume" role="tabpanel" aria-label="Resume">
+      <dl class="rows">
+        <dt>BDO USA</dt><dd>Audit Intern <small>incoming, Spring 2027</small></dd>
+        <dt>Vaughn Construction</dt><dd>Business Systems &amp; Operations <small>Waco, TX</small></dd>
+        <dt>IRS VITA</dt><dd>Volunteer tax preparer <small>20+ returns, $30,000+ in client savings</small></dd>
+        <dt>Baylor University</dt><dd>BBA, Accounting <small>Dec 2026</small><br>MAcc <small>Aug 2027, CPA track</small></dd>
+        <dt>Honors</dt><dd>Dean's List, six semesters. Baylor Distinction Award.</dd>
+      </dl>
+      <p><a class="textlink" href="https://luclo5.github.io/Lucian_Lonsdale_Resume.pdf" target="_blank" rel="noopener">Full resume (PDF)</a></p>
+    </section>
+
+    <section class="sec" id="projects" role="tabpanel" aria-label="Projects">
+      <p>Coming soon.</p>
+    </section>
+
+    <section class="sec" id="trading" role="tabpanel" aria-label="Trading">
+      <dl class="rows">
+        <dt>Status</dt><dd>On hiatus</dd>
+        <dt>Style</dt><dd>Swing trades, covered calls, high-vega options</dd>
+        <dt>Platforms</dt><dd>Robinhood, Liquid</dd>
+      </dl>
+      <p>Two and a half years of 100% growth, then an account liquidated by too much leverage. I'm returning with size, leverage and exits set before each trade.</p>
+    </section>
+
+    <section class="sec" id="writing" role="tabpanel" aria-label="Writing">
+      <p>A public journal of what I'm working on, tracking, and getting wrong.</p>
+      <dl class="rows">
+        <dt>In progress</dt><dd>Over Over-Optimization</dd>
+      </dl>
+      <p><a class="textlink" href="https://lucianlonsdale.substack.com/" target="_blank" rel="noopener">Read on Substack</a></p>
+    </section>
+
+    <section class="sec" id="contact" role="tabpanel" aria-label="Contact">
+      <dl class="rows">
+        <dt>Email</dt><dd><a href="mailto:luc_lonsdale1@baylor.edu">luc_lonsdale1@baylor.edu</a></dd>
+        <dt>LinkedIn</dt><dd><a href="https://www.linkedin.com/in/luc-lonsdale-741273298" target="_blank" rel="noopener">linkedin.com/in/luc-lonsdale</a></dd>
+        <dt>GitHub</dt><dd><a href="https://github.com/LUCLO5" target="_blank" rel="noopener">github.com/LUCLO5</a></dd>
+        <dt>Substack</dt><dd><a href="https://lucianlonsdale.substack.com/" target="_blank" rel="noopener">lucianlonsdale.substack.com</a></dd>
+        <dt>Based in</dt><dd>Waco, Texas and Phoenix, Arizona</dd>
+      </dl>
+    </section>
+  </div>
+
+  <footer>
+    <span>© 2026 Lucian Lonsdale</span>
+    <a href="https://luclo5.github.io/">Classic site</a>
+  </footer>
+</div>
+
+<div class="cur-ring" aria-hidden="true"></div>
+<div class="cur-dot" aria-hidden="true"></div>
+
+<script>
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  var canvas = document.getElementById('surface');
+  var ctx = canvas.getContext('2d');
+  var roM = document.getElementById('ro-m'), roT = document.getElementById('ro-t'), roS = document.getElementById('ro-s');
+
+  /* ---------------- Surface ---------------- */
+  var NX = 46, NY = 30, M0 = 0.70, M1 = 1.30, T0 = 0.05, T1 = 2.0, S_MIN = 0.10, S_MAX = 0.46;
+  var W = 0, H = 0, dpr = 1, SC = 1, OX = 0, OY = 0, XS = 1;
+  var yaw = 0.3, pitch = 0.46, tYaw = yaw, tPitch = pitch, vYaw = 0, vPitch = 0, drift = 0, touched = false;
+  var dragging = false, downX = 0, downY = 0, lastX = 0, lastY = 0, moved = 0;
+  var mouse = null, hot = -1, linked = -1, focused = -1, gridHover = null;
+  var time = 2.0, lastTs = 0, running = false, visible = true;
+  var proj = new Array(NX * NY), sig = new Float32Array(NX * NY);
+  if (!fine) { document.documentElement.classList.add('touch'); var hintEl = document.getElementById('hint'); if (hintEl) hintEl.textContent = 'Tap a point to open a section.'; }
+
+  function mAt(i) { return M0 + (M1 - M0) * i / (NX - 1); }
+  function tAt(j) { return T0 + (T1 - T0) * j / (NY - 1); }
+  function yOf(s) { return (s - S_MIN) / (S_MAX - S_MIN) * 1.05 - 0.5; }
+  var FLOOR = yOf(S_MIN);
+
+  function sigma(m, tau, t) {
+    var x = Math.log(m);
+    var atm = 0.175 + 0.07 * Math.exp(-tau / 0.35);
+    var skew = -0.22 * x * Math.exp(-0.5 * tau);
+    var smile = 0.55 * x * x / Math.sqrt(tau + 0.25);
+    var wave = 0.026 * Math.sin(9 * x + 2.2 * tau - 1.1 * t) * Math.cos(2.6 * tau - 0.55 * t)
+             + 0.011 * Math.sin(14 * x - 3.4 * tau + 0.8 * t);
+    return atm + skew + smile + wave;
+  }
+
+  function project(X, Y, Z) {
+    X *= XS;
+    var a = yaw + drift, cy = Math.cos(a), sy = Math.sin(a);
+    var x1 = X * cy - Z * sy, z1 = X * sy + Z * cy;
+    var cp = Math.cos(pitch), sp = Math.sin(pitch);
+    var y2 = Y * cp + z1 * sp, z2 = -Y * sp + z1 * cp;
+    var f = 5.5 / (5.5 + z2);
+    return { x: OX + x1 * f * SC, y: OY - y2 * f * SC, z: z2 };
+  }
+  function fit() {
+    SC = 1; OX = 0; OY = 0;
+    var x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9, top = yOf(S_MAX) + 0.08;
+    [-1.18, 1.18].forEach(function (X) { [-1.18, 1.22].forEach(function (Z) { [FLOOR, top].forEach(function (Y) {
+      var p = project(X, Y, Z);
+      x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y);
+    }); }); });
+    var pad = W < 520 ? 22 : 16;
+    SC = Math.min((W - 2 * pad) / (x1 - x0), (H - 2 * pad) / (y1 - y0));
+    OX = W / 2 - SC * (x0 + x1) / 2; OY = H / 2 - SC * (y0 + y1) / 2;
+  }
+  function resize() {
+    var r = canvas.getBoundingClientRect();
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = r.width; H = r.height;
+    XS = Math.max(1, Math.min(1.7, (W / H) / 1.35));
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    draw();
+  }
+
+  var lo = [168, 182, 206], hi = [22, 44, 112];
+  function col(s, a) {
+    var u = Math.pow(Math.max(0, Math.min(1, (s - 0.13) / 0.24)), 0.85);
+    return 'rgba(' + Math.round(lo[0] + (hi[0] - lo[0]) * u) + ',' + Math.round(lo[1] + (hi[1] - lo[1]) * u) + ',' + Math.round(lo[2] + (hi[2] - lo[2]) * u) + ',' + a + ')';
+  }
+  function label(text, p, align, color) { ctx.fillStyle = color || '#6A7586'; ctx.textAlign = align || 'center'; ctx.fillText(text, p.x, p.y); }
+
+  var pins = Array.prototype.map.call(document.querySelectorAll('.pin'), function (el, n) {
+    var i = Math.round((parseFloat(el.dataset.m) - M0) / (M1 - M0) * (NX - 1));
+    var j = Math.round((parseFloat(el.dataset.t) - T0) / (T1 - T0) * (NY - 1));
+    el.addEventListener('focus', function () { focused = n; redraw(); });
+    el.addEventListener('blur', function () { focused = -1; redraw(); });
+    el.addEventListener('click', function () { select(el.dataset.sec, { scroll: true }); });
+    return { el: el, sec: el.dataset.sec, i: i, j: j, x: 0, y: 0 };
+  });
+  function pinIndex(sec) { for (var n = 0; n < pins.length; n++) if (pins[n].sec === sec) return n; return -1; }
+
+  function nearestGrid(mx, my) {
+    var best = -1, bd = 900;
+    for (var k = 0; k < proj.length; k++) {
+      var dx = proj[k].x - mx, dy = proj[k].y - my, d = dx * dx + dy * dy;
+      if (d < bd) { bd = d; best = k; }
+    }
+    return best < 0 ? null : { i: best % NX, j: Math.floor(best / NX) };
+  }
+
+  function draw() {
+    if (!W) return;
+    ctx.clearRect(0, 0, W, H);
+    fit();
+    var i, j, k, p, q, n;
+    for (j = 0; j < NY; j++) for (i = 0; i < NX; i++) {
+      k = j * NX + i; sig[k] = sigma(mAt(i), tAt(j), time);
+      proj[k] = project(-1 + 2 * i / (NX - 1), yOf(sig[k]), -1 + 2 * j / (NY - 1));
+    }
+
+    ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(106,117,134,0.35)';
+    var c = [project(-1, FLOOR, -1), project(1, FLOOR, -1), project(1, FLOOR, 1), project(-1, FLOOR, 1)];
+    ctx.beginPath(); ctx.moveTo(c[0].x, c[0].y); for (k = 1; k < 4; k++) ctx.lineTo(c[k].x, c[k].y); ctx.closePath(); ctx.stroke();
+
+    ctx.font = '12px "IBM Plex Sans", Arial, sans-serif'; ctx.textBaseline = 'middle';
+    ctx.strokeStyle = 'rgba(106,117,134,0.16)';
+    [0.8, 0.9, 1.0, 1.1, 1.2].forEach(function (m) {
+      var X = -1 + 2 * (m - M0) / (M1 - M0), a = project(X, FLOOR, -1), b = project(X, FLOOR, 1);
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      if (m !== 0.9 && m !== 1.1) label(m.toFixed(1), project(X, FLOOR, -1.16));
+    });
+    [0.25, 0.5, 1.0, 1.5, 2.0].forEach(function (t) {
+      var Z = -1 + 2 * (t - T0) / (T1 - T0), a = project(-1, FLOOR, Z), b = project(1, FLOOR, Z);
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      if (t !== 1.5) label(t + 'y', project(1.14, FLOOR, Z), 'left');
+    });
+    label('K/S', project(0.33, FLOOR, -1.16), 'center', '#2E3A4C');
+    label('τ', project(1.3, FLOOR, 0.49), 'left', '#2E3A4C');
+
+    var a0 = project(-1, FLOOR, 1), a1 = project(-1, yOf(0.42), 1);
+    ctx.strokeStyle = 'rgba(106,117,134,0.45)';
+    ctx.beginPath(); ctx.moveTo(a0.x, a0.y); ctx.lineTo(a1.x, a1.y); ctx.stroke();
+    [0.2, 0.3, 0.4].forEach(function (s) {
+      var tp = project(-1, yOf(s), 1);
+      ctx.beginPath(); ctx.moveTo(tp.x - 4, tp.y); ctx.lineTo(tp.x, tp.y); ctx.stroke();
+      label(Math.round(s * 100) + '%', { x: tp.x - 8, y: tp.y }, 'right');
+    });
+    label('σ', { x: a1.x, y: a1.y - 14 }, 'center', '#2E3A4C');
+
+    var order = []; for (j = 0; j < NY; j++) order.push(j);
+    if (proj[(NY - 1) * NX].z > proj[0].z) order.reverse();
+    ctx.lineJoin = 'round';
+    order.forEach(function (j) {
+      for (var i = 0; i < NX - 1; i++) {
+        var k = j * NX + i, p = proj[k], q = proj[k + 1];
+        ctx.strokeStyle = col((sig[k] + sig[k + 1]) / 2, 0.92); ctx.lineWidth = 1.1;
+        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke();
+      }
+    });
+    for (i = 0; i < NX; i += 3) for (j = 0; j < NY - 1; j++) {
+      k = j * NX + i; p = proj[k]; q = proj[k + NX];
+      ctx.strokeStyle = col((sig[k] + sig[k + NX]) / 2, 0.45); ctx.lineWidth = 0.8;
+      ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke();
+    }
+
+    // Pins follow the surface; the pointer snaps to the nearest one within reach
+    for (n = 0; n < pins.length; n++) {
+      p = proj[pins[n].j * NX + pins[n].i];
+      pins[n].x = p.x; pins[n].y = p.y;
+      pins[n].el.style.transform = 'translate3d(' + p.x.toFixed(2) + 'px,' + p.y.toFixed(2) + 'px,0)';
+      pins[n].el.style.zIndex = String(Math.round(1000 - p.z * 100));
+    }
+    hot = -1; gridHover = null;
+    if (mouse && !dragging) {
+      var reach = fine ? 34 : 44, bd = reach * reach;
+      for (n = 0; n < pins.length; n++) {
+        var dx = pins[n].x - mouse.x, dy = pins[n].y - mouse.y, d = dx * dx + dy * dy;
+        if (d < bd) { bd = d; hot = n; }
+      }
+      if (hot < 0) gridHover = nearestGrid(mouse.x, mouse.y);
+    }
+    var act = hot >= 0 ? hot : (linked >= 0 ? linked : focused);
+    for (n = 0; n < pins.length; n++) {
+      var o = 0;
+      if (mouse && !dragging) {
+        var ddx = pins[n].x - mouse.x, ddy = pins[n].y - mouse.y, dist = Math.sqrt(ddx * ddx + ddy * ddy);
+        o = Math.max(0, Math.min(1, 1 - (dist - 34) / 130));
+      }
+      pins[n].el.style.setProperty('--o', o.toFixed(3));
+      pins[n].el.classList.toggle('hot', n === act);
+      pins[n].el.classList.toggle('show', n === act);
+    }
+    canvas.classList.toggle('on-pin', hot >= 0);
+    cursor.snapTo(hot >= 0 ? pins[hot] : null);
+
+    var pt = act >= 0 ? { i: pins[act].i, j: pins[act].j } : gridHover;
+    if (pt) {
+      k = pt.j * NX + pt.i; p = proj[k];
+      var fp = project(-1 + 2 * pt.i / (NX - 1), FLOOR, -1 + 2 * pt.j / (NY - 1));
+      ctx.setLineDash([3, 3]); ctx.strokeStyle = 'rgba(38,72,184,0.7)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(fp.x, fp.y); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = 'rgba(38,72,184,0.5)'; ctx.beginPath(); ctx.arc(fp.x, fp.y, 2, 0, Math.PI * 2); ctx.fill();
+      if (act < 0) {
+        ctx.fillStyle = '#F6F7F9'; ctx.strokeStyle = '#2648B8'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(p.x, p.y, 4.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      }
+    } else {
+      pt = { i: Math.round((1.0 - M0) / (M1 - M0) * (NX - 1)), j: Math.round((0.5 - T0) / (T1 - T0) * (NY - 1)) };
+      k = pt.j * NX + pt.i;
+    }
+    roM.textContent = mAt(pt.i).toFixed(2);
+    roT.textContent = tAt(pt.j).toFixed(2) + 'y';
+    roS.textContent = (sig[k] * 100).toFixed(1) + '%';
+  }
+  function redraw() { if (!running) draw(); }
+
+  function rel(e) { var r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+  canvas.addEventListener('pointerdown', function (e) {
+    dragging = true; touched = true; moved = 0;
+    downX = lastX = e.clientX; downY = lastY = e.clientY; vYaw = vPitch = 0;
+    mouse = rel(e);
+    if (e.pointerType === 'mouse') { canvas.setPointerCapture(e.pointerId); canvas.classList.add('dragging'); }
+    cursor.down(true);
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    mouse = rel(e);
+    if (dragging) {
+      var dx = e.clientX - lastX, dy = e.clientY - lastY;
+      moved = Math.max(moved, Math.abs(e.clientX - downX) + Math.abs(e.clientY - downY));
+      if (moved > 4) {
+        vYaw = dx * 0.008; tYaw += vYaw;
+        if (e.pointerType === 'mouse') { vPitch = dy * 0.005; tPitch = Math.max(0.12, Math.min(1.15, tPitch + vPitch)); }
+      }
+      lastX = e.clientX; lastY = e.clientY;
+    }
+    if (reduce) { yaw = tYaw; pitch = tPitch; }
+    redraw();
+  });
+  function endDrag(e) {
+    if (!dragging) return;
+    dragging = false; canvas.classList.remove('dragging'); cursor.down(false);
+    if (moved <= 4) {
+      mouse = rel(e); draw();
+      if (hot >= 0) select(pins[hot].sec, { scroll: true });
+    }
+  }
+  canvas.addEventListener('pointerup', endDrag);
+  canvas.addEventListener('pointercancel', function () { dragging = false; canvas.classList.remove('dragging'); cursor.down(false); });
+  canvas.addEventListener('pointerleave', function (e) { if (!dragging) { mouse = null; redraw(); } });
+  canvas.addEventListener('keydown', function (e) {
+    var s = { ArrowLeft: [-0.12, 0], ArrowRight: [0.12, 0], ArrowUp: [0, -0.06], ArrowDown: [0, 0.06] }[e.key];
+    if (!s) return; e.preventDefault(); touched = true;
+    tYaw += s[0]; tPitch = Math.max(0.12, Math.min(1.15, tPitch + s[1]));
+    if (reduce) { yaw = tYaw; pitch = tPitch; draw(); }
+  });
+
+  function frame(ts) {
+    if (!running) return;
+    var dt = lastTs ? Math.min(0.05, (ts - lastTs) / 1000) : 0.016; lastTs = ts;
+    time += dt * 0.9;
+    if (!dragging) {
+      tYaw += vYaw; vYaw *= 0.93;
+      tPitch = Math.max(0.12, Math.min(1.15, tPitch + vPitch)); vPitch *= 0.9;
+    }
+    yaw += (tYaw - yaw) * 0.16; pitch += (tPitch - pitch) * 0.16;
+    var tDrift = touched ? drift : 0.22 * Math.sin(time * 0.12);
+    drift += (tDrift - drift) * 0.05;
+    draw();
+    requestAnimationFrame(frame);
+  }
+  function start() { if (running || reduce || !visible || document.hidden) return; running = true; lastTs = 0; requestAnimationFrame(frame); }
+  function stop() { running = false; }
+
+  /* ---------------- Cursor ---------------- */
+  var cursor = (function () {
+    var dot = document.querySelector('.cur-dot'), ring = document.querySelector('.cur-ring');
+    var api = { snapTo: function () {}, down: function () {} };
+    if (!fine) return api;
+    document.documentElement.classList.add('cc');
+    var mx = -100, my = -100, rx = -100, ry = -100, snap = null, first = true;
+    document.addEventListener('mousemove', function (e) {
+      mx = e.clientX; my = e.clientY;
+      if (first) { rx = mx; ry = my; first = false; }
+      document.documentElement.classList.add('cur-on');
+      dot.style.transform = 'translate3d(' + mx + 'px,' + my + 'px,0)';
+      var t = e.target;
+      ring.classList.toggle('link', !!(t.closest && t.closest('a, .switch button')));
+      ring.classList.toggle('plot', !!(t.closest && t.closest('.plot')));
+    });
+    document.addEventListener('mouseleave', function () { document.documentElement.classList.remove('cur-on'); });
+    document.addEventListener('mouseenter', function () { document.documentElement.classList.add('cur-on'); });
+    api.snapTo = function (pin) {
+      snap = pin;
+      ring.classList.toggle('snap', !!pin);
+      dot.classList.toggle('hide', !!pin);
+    };
+    api.down = function (on) { ring.classList.toggle('down', on); };
+    (function loop() {
+      var tx = mx, ty = my;
+      if (snap) { var r = canvas.getBoundingClientRect(); tx = r.left + snap.x; ty = r.top + snap.y; }
+      var k = reduce ? 1 : (snap ? 0.35 : 0.22);
+      rx += (tx - rx) * k; ry += (ty - ry) * k;
+      ring.style.transform = 'translate3d(' + rx.toFixed(2) + 'px,' + ry.toFixed(2) + 'px,0)';
+      requestAnimationFrame(loop);
+    })();
+    return api;
+  })();
+
+  /* ---------------- Switcher + panel ---------------- */
+  var sw = document.getElementById('switch'), thumb = sw.querySelector('.thumb'), ghost = sw.querySelector('.ghost');
+  var tabs = Array.prototype.slice.call(sw.querySelectorAll('button'));
+  var stage = document.getElementById('stage');
+  var current = null, thumbLeft = null, swapT = 0, settleT = 0;
+
+  function place(el, btn, instant) {
+    var l = btn.offsetLeft, r = sw.scrollWidth - (btn.offsetLeft + btn.offsetWidth);
+    if (instant) { el.style.transition = 'none'; }
+    else if (el === thumb) {
+      var right = thumbLeft !== null && l > thumbLeft;
+      el.style.transitionDelay = right ? '.07s, 0s' : '0s, .07s';   // the leading edge moves first
+    }
+    el.style.left = l + 'px'; el.style.right = r + 'px';
+    if (el === thumb) thumbLeft = l;
+    if (instant) { void el.offsetWidth; el.style.transition = ''; }
+  }
+
+  function swap(next) {
+    clearTimeout(swapT); clearTimeout(settleT);
+    var cur = stage.querySelector('.sec.on');
+    if (cur === next) return;
+    if (reduce || !cur) {
+      if (cur) cur.classList.remove('on', 'out', 'in');
+      next.classList.add('on'); return;
+    }
+    stage.style.height = stage.offsetHeight + 'px';
+    cur.classList.remove('in'); cur.classList.add('out');
+    swapT = setTimeout(function () {
+      cur.classList.remove('on', 'out');
+      next.classList.add('on', 'in');
+      var padY = parseFloat(getComputedStyle(stage).paddingTop) + parseFloat(getComputedStyle(stage).paddingBottom);
+      stage.style.height = (next.offsetHeight + padY) + 'px';
+      requestAnimationFrame(function () { requestAnimationFrame(function () { next.classList.remove('in'); }); });
+      settleT = setTimeout(function () { stage.style.height = ''; }, 520);
+    }, 170);
+  }
+
+  function select(id, opts) {
+    opts = opts || {};
+    var sec = document.getElementById(id);
+    if (!sec || !sec.classList.contains('sec')) return;
+    var changed = current !== id; current = id;
+    tabs.forEach(function (b) {
+      var on = b.dataset.sec === id;
+      b.setAttribute('aria-selected', String(on)); b.tabIndex = on ? 0 : -1;
+      if (on && !opts.keepThumb) place(thumb, b, opts.instant);
+    });
+    pins.forEach(function (p) { p.el.setAttribute('aria-pressed', String(p.sec === id)); });
+    if (changed) swap(sec);
+    if (!opts.quiet) { try { history.replaceState(null, '', '#' + id); } catch (e) {} }
+    if (opts.scroll) {
+      var r = sw.getBoundingClientRect();
+      if (r.bottom > window.innerHeight - 40) sw.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    }
+    redraw();
+  }
+
+  tabs.forEach(function (b, n) {
+    b.addEventListener('click', function () { if (!justScrubbed) select(b.dataset.sec); });
+    b.addEventListener('mouseenter', function () { if (scrub && scrub.active) return; sw.classList.add('hovering'); place(ghost, b); linked = pinIndex(b.dataset.sec); redraw(); });
+    b.addEventListener('focus', function () { linked = pinIndex(b.dataset.sec); redraw(); });
+    b.addEventListener('blur', function () { linked = -1; redraw(); });
+    b.addEventListener('keydown', function (e) {
+      var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (!d) return; e.preventDefault();
+      var t = tabs[(n + d + tabs.length) % tabs.length]; t.focus(); select(t.dataset.sec);
+    });
+  });
+  sw.addEventListener('mouseleave', function () { if (!scrub) { sw.classList.remove('hovering'); linked = -1; redraw(); } });
+
+  // Hold and drag along the switcher: the highlight follows, sections change as you pass them
+  var scrub = null, justScrubbed = false;
+  function tabAt(x) {
+    for (var n = 0; n < tabs.length; n++) { var b = tabs[n]; if (x < b.offsetLeft + b.offsetWidth || n === tabs.length - 1) return b; }
+  }
+  sw.addEventListener('pointerdown', function (e) {
+    if (e.button !== 0) return;
+    scrub = { id: e.pointerId, x0: e.clientX, active: false };
+  });
+  sw.addEventListener('pointermove', function (e) {
+    if (!scrub || e.pointerId !== scrub.id) return;
+    if (!scrub.active) {
+      if (Math.abs(e.clientX - scrub.x0) < 5) return;
+      scrub.active = true; sw.setPointerCapture(e.pointerId);
+      sw.classList.add('scrubbing'); sw.classList.remove('hovering'); cursor.down(true);
+    }
+    var r = sw.getBoundingClientRect(), x = e.clientX - r.left + sw.scrollLeft;
+    var b = tabAt(x), w = b.offsetWidth, pad = 5;
+    var left = Math.max(pad, Math.min(sw.scrollWidth - pad - w, x - w / 2));
+    thumb.style.transitionDelay = '0s, 0s';
+    thumb.style.left = left + 'px'; thumb.style.right = (sw.scrollWidth - left - w) + 'px';
+    thumbLeft = left;
+    linked = pinIndex(b.dataset.sec);
+    if (b.dataset.sec !== current) select(b.dataset.sec, { keepThumb: true, quiet: true });
+    redraw();
+  });
+  function endScrub(e) {
+    if (!scrub) return;
+    var was = scrub.active; scrub = null;
+    if (!was) return;
+    justScrubbed = true; setTimeout(function () { justScrubbed = false; }, 0);
+    sw.classList.remove('scrubbing'); cursor.down(false); linked = -1;
+    select(current, {});
+  }
+  sw.addEventListener('pointerup', endScrub);
+  sw.addEventListener('pointercancel', endScrub);
+
+  document.querySelectorAll('[data-open]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault(); select(a.dataset.open);
+      sw.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+    });
+  });
+
+  /* ---------------- Boot ---------------- */
+  if ('IntersectionObserver' in window) new IntersectionObserver(function (en) { visible = en[0].isIntersecting; visible ? start() : stop(); }).observe(canvas);
+  document.addEventListener('visibilitychange', function () { document.hidden ? stop() : start(); });
+  if ('ResizeObserver' in window) new ResizeObserver(resize).observe(canvas); else window.addEventListener('resize', resize);
+  window.addEventListener('resize', function () { tabs.forEach(function (b) { if (b.dataset.sec === current) place(thumb, b, true); }); });
+
+  var h = (location.hash || '').slice(1);
+  select(document.getElementById(h) && document.getElementById(h).classList.contains('sec') ? h : 'resume', { instant: true, quiet: true });
+  resize(); start();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () {
+    tabs.forEach(function (b) { if (b.dataset.sec === current) place(thumb, b, true); }); redraw();
+  });
+})();
+</script>
+</body>
+</html>
